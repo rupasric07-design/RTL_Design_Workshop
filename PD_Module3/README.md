@@ -1,694 +1,933 @@
-# ============================================================
-# SKY130 MODULE 3 - DESIGN LIBRARY CELL USING MAGIC & NGSPICE
-# ============================================================
+# PHYSICAL DESIGN MODULE-3 
+## RTL to Physical Design / CMOS Technology
+## CMOS Inverter Design, Characterization, SKY130A Standard-Cell Layout & 16-Mask CMOS Fabrication
+---
 
-mkdir -p Sky130-Module-3/{SKY130_D3_SK1/results,SKY130_D3_SK2,SKY130_D3_SK3,screenshots}
-cd Sky130-Module-3
+## Overview
+
+This module presents a complete practical flow of CMOS inverter design, covering transistor-level SPICE simulation, circuit characterization, SKY130A standard-cell layout, layout extraction, post-layout simulation, and CMOS fabrication.
+
+The inverter is analyzed using transient response, input/output waveforms, rise time, fall time, propagation delay, voltage transfer characteristics, switching threshold, and PMOS/NMOS sizing effects. The design is then implemented using the SKY130A technology, including examination of the physical layout, standard-cell structure, and power and ground connections.
+
+The extracted layout is converted into a SPICE-compatible netlist and simulated using NGSPICE to verify the functionality and electrical behaviour of the implemented inverter. Finally, the module covers the major stages of the 16-mask CMOS fabrication process, from substrate and well formation to gate formation, source/drain implantation, contacts, and metal interconnections.
+
+Overall, this module provides a clear understanding of the complete journey from circuit design and simulation to physical layout, post-layout verification, and CMOS fabrication.
+
+---
+
+## Objectives
+
+- To understand the operation of a CMOS inverter at transistor level.
+- To perform CMOS inverter simulation using SPICE.
+- To analyze transient input and output waveforms.
+- To study rise time, fall time and propagation delay.
+- To analyze the Voltage Transfer Characteristic (VTC).
+- To understand switching threshold voltage and body effect.
+- To study the effect of PMOS/NMOS transistor sizing.
+- To implement and analyze a CMOS inverter standard cell using SKY130A technology.
+- To understand standard-cell layout, cell boundary and power/ground connectivity.
+- To perform layout extraction and generate an extracted SPICE representation.
+- To simulate the extracted circuit using NGSPICE.
+- To verify the functional behaviour of the physically implemented inverter.
+- To understand the major stages of the 16-mask CMOS fabrication process.
+- To establish the relationship between circuit design, physical layout, extraction and simulation.
+
+## 🛠️ Tools and Technologies Used
+
+| Tool / Technology | Purpose |
+|---|---|
+| **NGSPICE** | Transient and extracted-layout SPICE simulation |
+| **Magic VLSI** | CMOS layout creation, visualization and extraction |
+| **OpenLane** | Physical design and standard-cell implementation environment |
+| **SKY130A PDK** | CMOS technology files, device models and layout rules |
+| **SPICE** | Circuit modelling and transistor-level characterization |
+| **Linux Terminal** | Executing design, extraction and simulation commands |
+| **Git** | Repository cloning and version control |
+| **GitHub** | Project repository and documentation |
+| **CMOS Technology** | Understanding transistor fabrication and process flow |# CMOS Inverter Design, Characterization and 16-Mask CMOS Fabrication
+
+## Table of Contents
+
+1. CMOS Inverter SPICE Simulation and Characterization
+2. SKY130A Standard-Cell Design Flow
+3. 16-Mask CMOS Fabrication Process
+4. Lightly Doped Drain Formation
+5. Source and Drain Formation
+6. Contacts and Interconnect Formation
+7. Higher-Level Metal Formation
+8. Complete CMOS Design and Fabrication Flow
+9. Layout and Abstract View
+10. Defining the Cell Boundary
+11. Power and Ground Connectivity
+12. Layout Extraction
+13. Generating the Extracted Netlist
+14. Creating the SPICE File
+15. Transient Simulation using NGSPICE
+16. Input and Output Waveforms
+17. Physical Verification and Layout Analysis
+18. Standard Cell Layout Structure
+19. Extraction and Parasitic Information
+20. SPICE Model and Device Parameters
+21. Simulation Setup
+22. CMOS Inverter Operation
+23. Rise and Fall Behaviour
+24. Timing Behaviour
+25. Voltage Levels
+26. Transistor Sizing and Performance
+27. Layout-to-Simulation Correlation
+28. Overall Design Flow
+29. Conclusion
+
+# 1. CMOS Inverter SPICE Simulation and Characterization
+
+## 1.1 CMOS Inverter and SPICE Model Setup
+
+The first stage of the module focuses on setting up the CMOS inverter for transistor-level simulation. A CMOS inverter consists of a **PMOS transistor connected to the supply voltage** and an **NMOS transistor connected to ground**.
+
+The SPICE model provides the electrical characteristics of the MOS devices and allows the inverter to be analyzed under realistic device parameters. The transistor dimensions, supply voltage and input waveform are selected before performing the simulation.
 
 
-# ============================================================
-# README.md
-# ============================================================
+The simulation setup is important because the accuracy of the output waveform and delay measurements depends on the correct device models and circuit parameters. The NMOS and PMOS dimensions are selected according to the required inverter design.
 
-cat > README.md <<'EOF'
-# Sky130 Module 3 - Design Library Cell using Magic Layout and ngspice Characterization
+---
 
-## Objective
+## 1.2 Simulation Environment and Device Parameters
 
-This module covers the design, simulation, layout, extraction and characterization of a CMOS inverter using the Sky130 technology.
+The next stage involves configuring the simulation environment and defining the required transistor parameters. The width-to-length ratio of the PMOS and NMOS devices has a direct effect on the switching behavior of the inverter.
 
-## Module Contents
+The selected dimensions determine the relative drive strengths of the pull-up and pull-down networks. Proper sizing is required to obtain balanced rise and fall characteristics.
+<img width="900" height="582" alt="Screenshot (145)" src="https://github.com/user-attachments/assets/49059bca-d76c-4928-a2fa-280ebf9307f5" />
 
-### SKY130_D3_SK1 - Labs for CMOS Inverter ngspice Simulations
 
-- SKY_L0 - IO placer revision
-- SKY_L1 - SPICE deck creation for CMOS inverter
-- SKY_L2 - SPICE simulation lab for CMOS inverter
-- SKY_L3 - Switching Threshold Vm
-- SKY_L4 - Static and dynamic simulation of CMOS inverter
-- SKY_L5 - Lab steps to git clone vsdstdcelldesign
+The parameters specified here are later used by SPICE to calculate the transient response and voltage-transfer characteristics of the CMOS inverter.
 
-### SKY130_D3_SK2 - Inception of Layout - CMOS Fabrication Process
+---
 
-- SKY_L1 - Create Active regions
-- SKY_L2 - Formation of N-well and P-well
-- SKY_L3 - Formation of gate terminal
-- SKY_L4 - Lightly doped drain formation
-- SKY_L5 - Source-drain formation
-- SKY_L6 - Local interconnect formation
-- SKY_L7 - Higher-level metal formation
-- SKY_L8 - Sky130 basic layers and LEF using inverter
-- SKY_L9 - Create standard-cell layout and extract SPICE netlist
+## 1.3 SPICE Simulation Execution
 
-### SKY130_D3_SK3 - Sky130 Tech File Labs
+After defining the circuit and device parameters, the SPICE simulation is executed. The simulator solves the electrical behavior of the inverter as the input voltage changes with time.
 
-- SKY_L1 - Final SPICE deck using Sky130 technology
-- SKY_L2 - Characterize inverter using Sky130 model files
-- SKY_L3 - Magic tool options and DRC rules
-- SKY_L4 - Sky130 PDK download and lab setup
-- SKY_L5 - Load Sky130 technology rules in Magic
-- SKY_L6 - Fix poly.9 error
-- SKY_L7 - Poly resistor spacing
-- SKY_L8 - DRC error as geometrical construct
-- SKY_L9 - Missing/incorrect DRC rules
+The input signal is applied to the common gate terminal of the PMOS and NMOS transistors. Depending on the input voltage, one transistor turns ON while the other turns OFF, producing the inverted output.
+<img width="900" height="582" alt="Screenshot (146)" src="https://github.com/user-attachments/assets/939cf014-7cdb-481e-9814-b36432bc3de8" />
 
-## Tools Used
 
-- ngspice
-- Magic
-- Sky130 PDK
-- Git
-- Linux
-- SPICE
+This step verifies that the inverter operates correctly before detailed timing and static characterization are performed.
 
-## Main Design
+---
 
-CMOS Inverter
+## 1.4 Input and Output Waveforms
 
-Inputs:
-- A / IN
+The transient simulation produces both the input and output waveforms. The output waveform is complementary to the input waveform, demonstrating the fundamental operation of the CMOS inverter.
 
-Outputs:
-- Y / OUT
+When the input is LOW, the PMOS transistor conducts and the output is pulled towards the supply voltage. When the input becomes HIGH, the NMOS transistor conducts and the output is pulled towards ground.
+<img width="900" height="582" alt="Screenshot (147)" src="https://github.com/user-attachments/assets/f5eef6f2-4ef7-42f5-8e06-9d0101f20d30" />
 
-Power:
+
+The waveform confirms the correct logical inversion operation and also provides the information required for measuring propagation delay and transition times.
+
+---
+
+## 1.5 Transient Response Analysis
+
+The transient response is examined to understand how quickly the inverter responds to changes in the input signal.
+
+The transition of the output does not occur instantaneously because the transistor network and load capacitance require a finite amount of time to charge or discharge. This delay is an important performance parameter in digital circuits.
+<img width="900" height="582" alt="Screenshot (148)" src="https://github.com/user-attachments/assets/093dfd64-273a-4b05-9e0b-a35b6f7cbbed" />
+
+
+The measured waveform is used to determine parameters such as rise time, fall time and propagation delay.
+
+---
+
+## 1.6 Detailed Waveform Observation
+
+The simulation waveform is further examined over a selected time interval. This allows the transition points of the input and output signals to be identified accurately.
+
+The time difference between corresponding input and output transitions represents the propagation delay of the inverter.
+<img width="900" height="582" alt="Screenshot (149)" src="https://github.com/user-attachments/assets/163d8c7a-308b-4075-93cb-1089ac653b46" />
+
+
+Accurate waveform observation is necessary for obtaining reliable timing measurements and comparing different transistor sizing conditions.
+
+---
+
+## 1.7 Effect of PMOS/NMOS Sizing
+
+The performance of a CMOS inverter strongly depends on the relative sizing of the PMOS and NMOS transistors. Different width ratios are therefore simulated and compared.
+
+Increasing transistor width increases the available drive current and can reduce the time required to charge or discharge the load. However, excessive sizing also increases capacitance and may affect overall performance.
+<img width="900" height="582" alt="Screenshot (150)" src="https://github.com/user-attachments/assets/c5589897-81eb-474e-8f26-f2641be5417f" />
+
+
+---
+
+## 1.8 Static Behavior Evaluation
+
+Static characterization is performed using the **Voltage Transfer Characteristic (VTC)** of the CMOS inverter.
+
+The VTC represents the relationship between the input voltage and output voltage. It shows three important operating regions: the logic HIGH region, the transition region and the logic LOW region.
+<img width="900" height="582" alt="Screenshot (151)" src="https://github.com/user-attachments/assets/2fc3f090-13f4-42ff-9857-66aa0516e2b9" />
+
+---
+
+## 1.9 CMOS Inverter Robustness
+
+The VTC curves for different transistor sizing ratios are compared to study the robustness of the inverter.
+
+The switching point changes when the relative strength of the PMOS and NMOS devices changes. By comparing these curves, the effect of sizing on the logic threshold and inverter symmetry can be understood.
+<img width="900" height="582" alt="Screenshot (153)" src="https://github.com/user-attachments/assets/821c8469-2f7e-4a3f-b127-48a50eee15b1" />
+
+<p align="center">
+<img src="images/09.jpg" width="800">
+</p>
+
+---
+
+## 1.10 Switching Threshold Voltage
+
+The switching threshold voltage is the input voltage at which the inverter changes from its HIGH-output state to its LOW-output state.
+
+The threshold voltage is affected by the transistor characteristics, device sizing, body voltage and fabrication parameters. The body effect is particularly important when the source-to-body voltage is not zero.
+<img width="900" height="582" alt="Screenshot (155)" src="https://github.com/user-attachments/assets/c9664ecf-4838-4fbc-8fc8-c6b5db446aee" />
+
+
+The calculated and simulated values are compared to understand the relationship between the theoretical equations and the actual device behavior.
+
+---
+
+## 1.11 Voltage Transfer Characteristic Analysis
+
+The voltage-transfer curve provides a complete static representation of the CMOS inverter.
+
+At low input voltage, the PMOS is ON and the NMOS is OFF, so the output remains close to the supply voltage. At high input voltage, the NMOS is ON and the PMOS is OFF, causing the output to approach ground.
+<img width="900" height="582" alt="Screenshot (156)" src="https://github.com/user-attachments/assets/1338976a-8783-4ca5-9e82-476e90324e4d" />
+
+
+---
+
+## 1.12 Comparison of Different Sizing Conditions
+
+A second sizing condition is evaluated to observe how changing the transistor dimensions affects the inverter's switching characteristics.
+
+Changing the PMOS/NMOS ratio modifies the balance between the pull-up and pull-down networks. This can shift the switching threshold and change the rise and fall delays.
+<img width="900" height="582" alt="Screenshot (157)" src="https://github.com/user-attachments/assets/2299ffa1-5019-49fb-b46b-df5d86c3f42d" />
+
+
+---
+
+## 1.13 Verification of Calculated Value
+
+The values obtained from the simulation are verified using the calculated result. This provides an additional check on the measurements obtained from the waveform and characterization process.
+
+The numerical verification helps ensure that the extracted parameter is consistent with the theoretical calculation.
+<img width="900" height="582" alt="Screenshot (158)" src="https://github.com/user-attachments/assets/53f7e58a-ceef-4f41-b9fb-6e8cbdc32188" />
+
+
+Such verification improves confidence in the extracted timing and electrical characteristics.
+
+---
+
+## 1.14 Final Inverter Characterization
+
+The final characterization summarizes the behavior of the selected CMOS inverter configuration.
+
+The voltage-transfer characteristic, switching behavior and timing response are used together to evaluate whether the chosen transistor sizing provides the desired performance.
+<img width="900" height="582" alt="Screenshot (159)" src="https://github.com/user-attachments/assets/7c2cf640-3a16-4c18-a33a-a0c48b71354d" />
+
+
+The characterization results provide the basis for proceeding towards the physical implementation of the standard cell.
+
+---
+
+# 2. SKY130A Standard-Cell Design Flow
+
+## 2.1 Cloning the Design Repository
+
+The standard-cell design environment is prepared by cloning the required repository into the OpenLane working directory.
+
+Git is used to obtain the required source files, configuration files, technology information and supporting resources.
+
+---
+
+## 2.2 Preparing the SKY130A Technology File
+
+After cloning the repository, the required SKY130A technology file is copied into the appropriate standard-cell design directory.
+
+The technology file contains important information required by the layout and physical-design tools to interpret the process layers and device structures correctly.
+<img width="1920" height="1060" alt="MOD3" src="https://github.com/user-attachments/assets/a914bd26-6079-4b92-a470-a8b307c10015" />
+
+
+
+---
+
+## 2.3 CMOS Inverter Layout
+
+The CMOS inverter layout is opened using the layout editor. The physical arrangement of the PMOS and NMOS devices, contacts, diffusion regions, polysilicon and metal layers can be observed.
+
+The layout represents the physical implementation of the transistor-level CMOS inverter designed during the simulation stage.
+<img width="1920" height="1060" alt="layout(mod3)" src="https://github.com/user-attachments/assets/9f318299-a345-4c75-8ba7-9b7f0b33c5ee" />
+
+A well-designed layout must satisfy the technology design rules while maintaining compact area and proper electrical connectivity.
+
+---
+
+# 3. 16-Mask CMOS Fabrication Process
+
+The next part of the module explains the major stages involved in manufacturing a CMOS integrated circuit using a 16-mask process.
+
+The fabrication sequence consists of repeated steps of oxidation, photolithography, implantation, deposition, etching and metallization. Each mask defines a specific physical region required to build the CMOS devices.
+
+---
+
+## 3.1 Selecting the Silicon Substrate
+
+The fabrication process begins with the selection of a P-type silicon substrate.
+
+The substrate provides the mechanical and electrical foundation on which the CMOS devices are fabricated. The substrate is selected with a controlled doping concentration, resistivity and crystal orientation.
+<img width="900" height="582" alt="Screenshot (161)" src="https://github.com/user-attachments/assets/98d1d7a1-5e96-431d-a2b9-e2f73c52b3a8" />
+
+
+Starting with a controlled substrate is important because the substrate properties directly influence device characteristics such as threshold voltage, junction behavior and leakage.
+
+---
+
+## 3.2 Formation of Active Regions – Mask 1
+
+The first mask is used to define the active regions in which transistors will eventually be formed.
+
+Field oxide is grown over the regions that must be electrically isolated. The LOCOS process, or **Local Oxidation of Silicon**, is used to separate active device areas.
+<img width="900" height="582" alt="Screenshot (162)" src="https://github.com/user-attachments/assets/1aff10a7-95a3-42ad-b3d5-5c0309004cc7" />
+
+
+The field oxide prevents unwanted conduction between neighboring devices and provides electrical isolation.
+
+The LOCOS structure also produces the characteristic **bird's-beak** region near the boundary of the field oxide.
+
+---
+
+## 3.3 P-Well Formation – Boron Implantation
+
+The next stage forms the required well regions for complementary MOS devices.
+
+Boron is a P-type dopant and is implanted into the selected region to form the P-well. The implantation energy and dose are controlled to obtain the required doping profile.
+<img width="1920" height="1080" alt="Screenshot (165)" src="https://github.com/user-attachments/assets/08190702-815f-4c72-b610-97fb8e0166ca" />
+
+
+The P-well provides the body region in which the NMOS transistor will be fabricated. Proper well formation is essential for achieving the required threshold voltage and isolation.
+
+---
+
+## 3.4 N-Well Formation – Phosphorus Implantation
+
+Phosphorus, which is an N-type dopant, is implanted into the selected region to form the N-well.
+
+The N-well provides the body region required for the PMOS transistor in a CMOS process.
+<img width="1920" height="1080" alt="Screenshot (166)" src="https://github.com/user-attachments/assets/3eea2bb2-1a04-4bab-bbce-cebec3cfb9a1" />
+
+
+The combination of N-well and P-well regions enables both PMOS and NMOS transistors to be fabricated on the same silicon substrate.
+
+---
+
+## 3.5 Gate Formation – Initial Structure
+
+After the well regions are formed, the process moves towards gate formation.
+
+The gate is one of the most important parts of a MOS transistor because it controls the formation of the conducting channel between source and drain.
+<img width="1920" height="1080" alt="Screenshot (167)" src="https://github.com/user-attachments/assets/af3ce00b-d164-453f-a816-0240d8722d5a" />
+
+
+The gate structure separates the control terminal from the semiconductor using a thin insulating oxide layer. This allows the MOS transistor to be controlled using an electric field.
+
+---
+
+## 3.6 Threshold Voltage and Body Effect
+
+The threshold voltage of a MOS transistor is not constant under all operating conditions. It depends on the manufacturing process, substrate doping, oxide capacitance and source-to-body voltage.
+
+The threshold-voltage equation includes the body-effect term, which represents the change in threshold voltage when the source and body are at different potentials.
+<img width="1920" height="1080" alt="Screenshot (168)" src="https://github.com/user-attachments/assets/08b2624d-7192-45c2-8d63-1af8ac178f9f" />
+
+
+The body effect becomes particularly important when the source-to-body voltage changes. Understanding this effect is necessary for accurate transistor modeling and CMOS circuit design.
+
+---
+
+## 3.7 Gate Patterning – Mask 4
+
+Photolithography is used to define the required gate pattern. A photoresist layer is deposited and exposed according to the mask pattern.
+
+Mask 4 defines the region that is retained or removed during the subsequent processing step.
+<img width="1920" height="1080" alt="Screenshot (169)" src="https://github.com/user-attachments/assets/a492ef5b-3fa2-4c9b-a203-0bd4e646ea3b" />
+
+
+Accurate gate patterning is critical because the gate length directly affects important transistor characteristics such as drive current, delay and short-channel behavior.
+
+---
+
+## 3.8 Gate Patterning – Mask 5
+
+The next mask is applied to further define the required gate-related structure.
+
+The photoresist acts as a temporary protective layer, allowing selected regions to undergo etching or processing while protecting the remaining regions.
+<img width="1920" height="1080" alt="Screenshot (172)" src="https://github.com/user-attachments/assets/9c71bc4c-91f1-4c3b-a4a5-511ddf4187aa" />
+
+
+This stage refines the physical gate structure and prepares the transistor regions for subsequent implantation steps.
+
+---
+
+## 3.9 Gate Patterning – Mask 6
+
+Mask 6 is used during the continuation of the gate-processing sequence.
+
+The patterned structure now provides the physical definition required for controlling the later source/drain implantation regions.
+<img width="900" height="582" alt="Screenshot (173)" src="https://github.com/user-attachments/assets/b4606e4d-1daa-4ae8-b158-10d8e8d97dcd" />
+
+
+The gate acts as the self-aligned reference for forming the source and drain regions, which is a key feature of modern MOS fabrication.
+
+---
+
+# 4. Lightly Doped Drain Formation
+
+## 4.1 LDD Formation – Mask 7
+
+The Lightly Doped Drain (LDD) process introduces lightly doped regions close to the transistor channel.
+
+These regions reduce the electric field near the drain and help improve device reliability. The LDD structure is particularly important for reducing hot-carrier effects.
+<img width="1920" height="1080" alt="Screenshot (174)" src="https://github.com/user-attachments/assets/83e12ad6-00cd-43b7-b9da-4af0ec4bd789" />
+
+
+The lightly doped extension provides a gradual transition between the heavily doped source/drain region and the channel.
+
+---
+
+## 4.2 LDD Formation – Mask 8
+
+The complementary LDD implantation is performed for the opposite transistor type.
+
+The correct dopant type is selected depending on whether the region belongs to the NMOS or PMOS device.
+<img width="1920" height="1080" alt="Screenshot (175)" src="https://github.com/user-attachments/assets/a5014a7e-dbc5-40c7-820c-3cfecb867154" />
+
+
+The LDD process provides a balance between transistor drive capability and reliability by controlling the electric field near the drain.
+
+---
+
+# 5. Source and Drain Formation
+
+## 5.1 Source and Drain Formation – Mask 9
+
+After LDD formation, heavily doped source and drain regions are created.
+
+The implantation is aligned with the gate structure so that the source and drain are positioned on either side of the channel.
+<img width="1920" height="1080" alt="Screenshot (176)" src="https://github.com/user-attachments/assets/a25c0e16-f874-4fb9-b54e-96fc86075bec" />
+
+
+The heavily doped regions provide low-resistance electrical terminals for the MOS transistor while the region underneath the gate remains available for channel formation.
+
+---
+
+## 5.2 Source and Drain Formation – Mask 10
+
+The complementary source/drain implantation is then performed for the opposite transistor type.
+
+The NMOS and PMOS require opposite conductivity types for their source and drain regions.
+<img width="900" height="582" alt="Screenshot (177)" src="https://github.com/user-attachments/assets/9a19c367-c638-4a29-9a6b-148632a9a514" />
+
+
+At this stage, the essential transistor structures are present: wells, gate, source and drain. These structures form the basic building blocks of the CMOS inverter.
+
+---
+
+# 6. Contacts and Interconnect Formation
+
+## 6.1 Local Contacts and Interconnects
+
+Once the transistor regions are completed, electrical contacts are created to connect the device terminals to the interconnect layers.
+
+The contact process provides a low-resistance electrical path from the source, drain and gate regions to the metal interconnect system.
+<img width="1920" height="1080" alt="Screenshot (178)" src="https://github.com/user-attachments/assets/a6563950-7c0d-450b-ad24-42d353a4b0a4" />
+
+
+The process includes cleaning and etching steps to ensure that the contact regions are properly prepared before metal deposition.
+
+Proper contact formation is important because defects or high contact resistance can significantly affect circuit performance.
+
+---
+
+# 7. Higher-Level Metal Formation
+
+## 7.1 Higher-Level Metal Interconnections
+
+The final stage shown in this module is the formation of higher-level metal interconnections.
+
+Metal layers are used to electrically connect different transistor terminals and different parts of the integrated circuit. Contact holes are opened where connections between different layers are required.
+<img width="900" height="582" alt="Screenshot (179)" src="https://github.com/user-attachments/assets/b951251d-0461-40c9-8056-25eab941f27c" />
+
+
+The final metallization stage converts the isolated transistor structures into a complete electrically connected circuit. Higher-level metal layers are essential for routing signals, power and ground throughout the chip.
+
+---
+
+# 8. Complete CMOS Design and Fabrication Flow
+
+The overall workflow covered in this module can be summarized as:
+
+```text
+CMOS Inverter Design
+        ↓
+SPICE Model Setup
+        ↓
+Transient Simulation
+        ↓
+Waveform Analysis
+        ↓
+Rise/Fall Delay Measurement
+        ↓
+Voltage Transfer Characteristic
+        ↓
+Switching Threshold Analysis
+        ↓
+Transistor Sizing Optimization
+        ↓
+SKY130A Standard-Cell Setup
+        ↓
+Repository and Technology File Setup
+        ↓
+CMOS Inverter Layout
+        ↓
+Silicon Substrate
+        ↓
+Active Region Formation
+        ↓
+N-Well / P-Well Formation
+        ↓
+Gate Formation
+        ↓
+LDD Formation
+        ↓
+Source / Drain Formation
+        ↓
+Local Contacts
+        ↓
+Metal Interconnects
+        ↓
+Higher-Level Metal
+        ↓
+Completed CMOS Structure
+```
+
+
+# 9. Layout and Abstract View
+
+The first stage of the design flow is the creation of the standard-cell layout using the SKY130A technology.
+
+The layout represents the physical implementation of the CMOS circuit using the required layers such as:
+
+- Metal layers
+- Polysilicon
+- Diffusion
+- Contacts
+- Well regions
+- Power and ground connections
+
+The corresponding abstract view represents the simplified physical information of the cell that can be used by the digital implementation flow.
+
+The layout and abstract views are checked to ensure that the cell has the required physical structure and proper connectivity.
+<img width="900" height="582" alt="Screenshot (180)" src="https://github.com/user-attachments/assets/59d161c4-e4a5-4b98-ba5c-19cf02977397" />
+
+
+---
+
+# 10. Defining the Cell Boundary
+
+After creating the layout, a proper cell boundary is defined.
+
+The boundary determines the physical area occupied by the standard cell. It is important because standard cells must follow a well-defined height and width so that they can be placed together during physical design.
+
+The cell boundary also helps maintain:
+
+- Consistent cell dimensions
+- Proper placement
+- Alignment with neighbouring cells
+- Correct power and ground rail positions
+- Compatibility with the standard-cell library
+
+The layout is therefore organized inside the defined cell boundary.
+<img width="900" height="582" alt="Screenshot (181)" src="https://github.com/user-attachments/assets/0f9c2258-893a-4911-8d7c-f375712e0804" />
+
+
+---
+
+# 11. Power and Ground Connectivity
+
+The next step is to establish the power and ground connections of the cell.
+
+For the CMOS standard cell:
+
+- **VDD** provides the positive supply voltage.
+- **GND** provides the reference/ground connection.
+
+The power and ground segments are connected to the appropriate transistor terminals and are routed through the required layout layers.
+
+Correct power and ground connectivity is essential for reliable circuit operation and for maintaining compatibility with the standard-cell architecture.
+<img width="900" height="582" alt="Screenshot (182)" src="https://github.com/user-attachments/assets/e56ddad5-d321-4234-af24-3577a3d52301" />
+
+
+---
+
+# 12. Layout Extraction
+
+Once the physical layout is completed, the layout information is extracted to obtain the electrical representation of the circuit.
+
+The extraction process identifies:
+
+- Devices present in the layout
+- Electrical connections
+- Nodes
+- Parasitic elements
+- Device dimensions
+- Power and ground connections
+
+The extracted information is used to generate a SPICE-compatible representation of the physical layout.
+
+This step is important because simulation of the extracted circuit provides a more realistic representation of the implemented layout than an ideal schematic-level simulation.
+<img width="1920" height="1060" alt="mod4ss1" src="https://github.com/user-attachments/assets/a33c0894-0c48-40bd-bd26-98527e8ca65d" />
+
+
+
+---
+
+# 13. Generating the Extracted Netlist
+
+After extraction, the generated files are checked in the working directory.
+
+The extracted netlist contains the electrical information obtained from the physical layout. It provides the connectivity and device information required for circuit simulation.
+
+The generated files are verified before proceeding to the SPICE simulation stage.
+
+Typical files generated during this stage include the extracted layout information and SPICE-compatible netlist files.
+<img width="1920" height="1060" alt="mos3 1" src="https://github.com/user-attachments/assets/37187d81-c53e-4d77-9c10-865e6f47e0ad" />
+
+---
+
+# 14. Creating the SPICE File
+
+The extracted circuit information is then used to prepare the SPICE simulation file.
+
+The SPICE file contains:
+
+- Technology/model information
+- Cell subcircuit definition
+- Input and output nodes
+- Power supply connections
+- Ground connections
+- Transistor information
+- Simulation parameters
+
+The standard-cell subcircuit is defined using the extracted device parameters so that the physical implementation can be simulated using NGSPICE.
+<img width="1920" height="1200" alt="vim" src="https://github.com/user-attachments/assets/429e3b83-795b-45d1-9d56-8ac643c011eb" />
+
+
+---
+
+# 15. Transient Simulation using NGSPICE
+
+The extracted SPICE circuit is simulated using NGSPICE.
+
+Transient analysis is performed to observe how the output voltage changes with time when the input signal is applied.
+
+The simulation setup applies a changing input signal while the cell is powered using the required supply voltage.
+
+During simulation, the important nodes such as:
+
+- Input
+- Output
 - VDD
 - GND
 
-## Expected Flow
+are observed.
 
-SPICE schematic
-        |
-        v
-ngspice simulation
-        |
-        v
-CMOS inverter layout
-        |
-        v
-Magic DRC
-        |
-        v
-SPICE extraction
-        |
-        v
-Post-layout simulation
-        |
-        v
-Characterization
+The initial simulation output confirms that the extracted circuit is electrically connected and can be simulated successfully.
+<img width="958" height="934" alt="7th image" src="https://github.com/user-attachments/assets/156adb31-de86-4f91-95b1-6b047d725ae7" />
 
-## Author
+---
 
-Sky130 Module 3 Submission
-EOF
+# 16. Input and Output Waveforms
 
+The final simulation result is observed using the generated transient waveform.
 
-# ============================================================
-# SKY130_D3_SK1/inverter.spice
-# ============================================================
+The input signal changes between logic LOW and logic HIGH. The CMOS inverter responds by producing the complementary output.
 
-cat > SKY130_D3_SK1/inverter.spice <<'EOF'
-* SKY130 CMOS Inverter - Basic SPICE Deck
+Therefore:
 
-.title SKY130 CMOS Inverter
+- When the input is LOW, the output becomes HIGH.
+- When the input is HIGH, the output becomes LOW.
 
-.param VDD=1.8
+The waveform confirms the expected inverter functionality.
 
-VDD vdd 0 {VDD}
-VIN in  0 PULSE(0 {VDD} 0 10p 10p 5n 10n)
+The simulated voltage levels are close to the expected supply and ground levels, demonstrating correct operation of the extracted standard cell.
+<img width="958" height="934" alt="8th" src="https://github.com/user-attachments/assets/462635ce-8158-4138-8edb-8b8db8b45fa1" />
 
-* PMOS
-M1 out in vdd vdd sky130_fd_pr__pfet_01v8
-+ L=0.15u W=1.0u
 
-* NMOS
-M2 out in 0 0 sky130_fd_pr__nfet_01v8
-+ L=0.15u W=0.5u
+---
 
-Cload out 0 10f
+# 17. Physical Verification and Layout Analysis
 
-.model sky130_fd_pr__pfet_01v8 PMOS
-.model sky130_fd_pr__nfet_01v8 NMOS
+After completing the basic layout, the physical implementation is examined carefully to ensure that the required layers and connections are present.
 
-.tran 10p 50n
+The layout is checked for correct transistor formation, diffusion regions, polysilicon structures, contacts, metal routing, and power connections.
 
-.control
-run
-plot v(in) v(out)
-.endc
+The purpose of this stage is to make sure that the physical representation corresponds to the intended CMOS circuit.
 
-.end
-EOF
+A properly constructed layout should maintain:
 
+- Correct device connectivity
+- Correct power distribution
+- Proper cell boundary
+- Valid layer usage
+- Proper transistor arrangement
 
-# ============================================================
-# SKY130_D3_SK1/inverter_tb.spice
-# ============================================================
+---
 
-cat > SKY130_D3_SK1/inverter_tb.spice <<'EOF'
-* CMOS Inverter Testbench
+# 18. Standard Cell Layout Structure
 
-.title CMOS Inverter Testbench
+The standard cell follows the conventional CMOS standard-cell arrangement.
 
-VDD vdd 0 1.8
-VIN in 0 PULSE(0 1.8 0 10p 10p 5n 10n)
+The PMOS network is placed towards the upper portion of the cell and is associated with the VDD rail, while the NMOS network is placed towards the lower portion and is associated with the GND rail.
 
-Mpmos out in vdd vdd PMOS W=1u L=0.15u
-Mnmos out in 0 0 NMOS W=0.5u L=0.15u
+The input connection controls the gates of the transistors, while the output is obtained from the common connection between the pull-up and pull-down networks.
 
-Cload out 0 10f
+This arrangement allows the cell to provide complementary logic operation while maintaining a regular physical structure suitable for standard-cell libraries.
 
-.model PMOS PMOS
-.model NMOS NMOS
+---
 
-.tran 10p 50n
+# 19. Extraction and Parasitic Information
 
-.control
-run
-write inverter.raw v(in) v(out)
-plot v(in) v(out)
-.endc
+Layout extraction converts the physical geometry into an electrical representation.
 
-.end
-EOF
+Unlike an ideal schematic, the extracted circuit can contain parasitic effects caused by the physical implementation.
 
+These effects can influence:
 
-# ============================================================
-# SKY130_D3_SK1/simulation_commands.txt
-# ============================================================
+- Propagation delay
+- Rise time
+- Fall time
+- Output transition
+- Dynamic behaviour
 
-cat > SKY130_D3_SK1/simulation_commands.txt <<'EOF'
-# Basic ngspice simulation
+Therefore, extracted-layout simulation is an important step in validating whether the physically implemented cell behaves as expected.
 
-ngspice inverter.spice
+---
 
-# Inside ngspice:
+# 20. SPICE Model and Device Parameters
 
-run
-plot v(in) v(out)
+The generated SPICE representation uses the SKY130A technology information to describe the devices used by the cell.
 
-# DC transfer characteristic
+The transistor models contain the electrical parameters required by NGSPICE to calculate the behaviour of the MOS devices.
 
-dc VIN 0 1.8 0.01
+The extracted cell therefore represents the actual physical implementation more closely than an idealized circuit model.
 
-# Transient analysis
+This enables realistic verification of the standard cell before it is used in a larger digital design.
 
-tran 10p 50n
+---
 
-# Exit
+# 21. Simulation Setup
 
-quit
-EOF
+For transient analysis, suitable input stimulus and supply conditions are defined.
 
+The supply voltage is applied between VDD and GND, while the input is driven using a time-varying digital waveform.
 
-# ============================================================
-# SKY130_D3_SK1/results/README.md
-# ============================================================
+The simulation observes the response of the output node over time.
 
-cat > SKY130_D3_SK1/results/README.md <<'EOF'
-# Simulation Results
+The main objective of the transient simulation is to verify:
 
-Place the following simulation screenshots in this directory:
+1. Correct logic functionality
+2. Proper voltage levels
+3. Output transitions
+4. Timing behaviour
+5. Stability of the simulated circuit
 
-1. CMOS inverter input-output waveform
-2. DC transfer characteristic
-3. Switching threshold Vm
-4. Rise and fall transition
-5. Static power behavior
-6. Dynamic switching behavior
+---
 
-The screenshots should be captured from ngspice.
-EOF
+# 22. CMOS Inverter Operation
 
+The operation of the CMOS inverter is based on complementary switching of PMOS and NMOS transistors.
 
-# ============================================================
-# SKY130_D3_SK2/inverter.spice
-# ============================================================
+### Input LOW
 
-cat > SKY130_D3_SK2/inverter.spice <<'EOF'
-* Extracted CMOS Inverter SPICE Netlist
-* Sky130 standard-cell layout
+When the input is LOW:
 
-.subckt inverter A Y VPWR VGND
+- PMOS turns ON.
+- NMOS turns OFF.
+- The output is connected towards VDD.
+- Therefore, the output becomes HIGH.
 
-* PMOS
-M1 Y A VPWR VPWR sky130_fd_pr__pfet_01v8
+### Input HIGH
 
-* NMOS
-M2 Y A VGND VGND sky130_fd_pr__nfet_01v8
+When the input is HIGH:
 
-.ends inverter
-EOF
+- PMOS turns OFF.
+- NMOS turns ON.
+- The output is connected towards GND.
+- Therefore, the output becomes LOW.
 
+Hence, the output is the logical complement of the input.
 
-# ============================================================
-# SKY130_D3_SK2/layout_notes.md
-# ============================================================
+---
 
-cat > SKY130_D3_SK2/layout_notes.md <<'EOF'
-# CMOS Inverter Layout
+# 23. Rise and Fall Behaviour
 
-## Main Layers
+During a LOW-to-HIGH input transition, the output changes from HIGH to LOW.
 
-The CMOS inverter layout contains:
+During a HIGH-to-LOW input transition, the output changes from LOW to HIGH.
 
-- N-well
-- P-diffusion
-- N-diffusion
-- Poly
-- Local interconnect
-- Metal1
-- Contacts
-- Power rail
-- Ground rail
+The finite slope visible in the waveform is due to the charging and discharging of the capacitances associated with the circuit.
 
-## Layout Structure
+Therefore, the practical output waveform does not change instantaneously.
 
-PMOS is placed inside the N-well.
+The extracted parasitic components can further influence the transition behaviour.
 
-NMOS is placed in the P-substrate.
+---
 
-The polysilicon gate is shared by PMOS and NMOS.
+# 24. Timing Behaviour
 
-The drains are connected together to form the output.
+The transient waveform can be used to understand the timing characteristics of the standard cell.
 
-The PMOS source connects to VPWR.
+Important timing parameters include:
 
-The NMOS source connects to VGND.
+- Rise time
+- Fall time
+- Propagation delay
+- Input transition time
+- Output transition time
 
-## Standard Cell Structure
+These parameters are important when standard cells are used to construct larger digital circuits.
 
-Top:
-VPWR
+A faster cell provides better timing performance, while the physical implementation and transistor sizing can affect the delay and power characteristics.
 
-PMOS region
+---
 
-Output
+# 25. Voltage Levels
 
-NMOS region
+The simulation verifies that the output reaches the expected logic levels.
 
-Bottom:
-VGND
+The HIGH level approaches the supply voltage, while the LOW level approaches ground.
 
-The layout should maintain correct Sky130 design-rule spacing.
-EOF
+This confirms that the extracted cell provides proper digital logic behaviour.
 
+The waveform therefore provides an important validation of both the logical operation and the electrical implementation of the cell.
 
-# ============================================================
-# SKY130_D3_SK2/inverter.mag
-# ============================================================
+---
 
-cat > SKY130_D3_SK2/inverter.mag <<'EOF'
-magic
-tech sky130A
-timestamp 0
+# 26. Transistor Sizing and Performance
 
-<< nwell >>
-rect 0 0 100 100
+The dimensions of the PMOS and NMOS devices influence the electrical characteristics of the cell.
 
-<< ndiff >>
-rect 20 40 80 70
+Device sizing affects:
 
-<< pdiff >>
-rect 20 10 80 40
+- Drive strength
+- Rise time
+- Fall time
+- Propagation delay
+- Power consumption
+- Switching behaviour
 
-<< poly >>
-rect 45 10 55 70
+Proper sizing is therefore required to obtain a balanced and reliable standard-cell implementation.
 
-<< locali >>
-rect 20 35 45 45
-rect 55 35 80 45
+The physical dimensions obtained during layout are also reflected in the extracted circuit used for simulation.
 
-<< metal1 >>
-rect 0 70 100 80
-rect 0 0 100 10
-rect 45 35 55 45
+---
 
-<< ndcontact >>
-rect 25 40 35 50
+# 27. Layout-to-Simulation Correlation
 
-<< pdcontact >>
-rect 25 20 35 30
+One of the important objectives of this project is to establish a complete connection between physical design and circuit simulation.
 
-<< metal1 >>
-rect 20 75 80 80
-rect 20 0 80 5
+The flow can be summarized as:
 
-<< end >>
-EOF
+**Layout → Extraction → SPICE Netlist → NGSPICE Simulation → Waveform Analysis**
 
+The layout defines the physical implementation.
 
-# ============================================================
-# SKY130_D3_SK2/extracted.spice
-# ============================================================
+The extraction process converts the physical implementation into an electrical representation.
 
-cat > SKY130_D3_SK2/extracted.spice <<'EOF'
-* Post-layout extracted inverter netlist
+The generated SPICE file is then simulated using NGSPICE.
 
-.subckt inverter A Y VPWR VGND
+Finally, the transient waveforms are analyzed to verify the behaviour of the implemented cell.
 
-M1 Y A VPWR VPWR sky130_fd_pr__pfet_01v8
-+ L=0.15u W=1.0u
+---
 
-M2 Y A VGND VGND sky130_fd_pr__nfet_01v8
-+ L=0.15u W=0.5u
+# 28. Overall Design Flow
 
-Cpar Y VGND 10f
+The complete design flow followed in this work is:
 
-.ends inverter
-EOF
+```text
+SKY130A Technology
+        ↓
+Standard Cell Layout
+        ↓
+Define Cell Boundary
+        ↓
+Power & Ground Connections
+        ↓
+Layout Verification
+        ↓
+Parasitic Extraction
+        ↓
+SPICE Netlist Generation
+        ↓
+SPICE Simulation Setup
+        ↓
+NGSPICE Transient Analysis
+        ↓
+Input / Output Waveform
+        ↓
+Functional and Timing Analysis
+```
 
 
-# ============================================================
-# SKY130_D3_SK2/magic_commands.txt
-# ============================================================
 
-cat > SKY130_D3_SK2/magic_commands.txt <<'EOF'
-# Start Magic with Sky130 technology
+## 📊 Overall Result
 
-magic -T sky130A inverter.mag
+The CMOS inverter design was successfully implemented, simulated, characterized, and taken through the physical design flow using the SKY130A technology. The complete process demonstrated the relationship between the transistor-level circuit, physical layout, extracted netlist, and post-layout SPICE simulation.
 
-# Display layout
+The major results obtained from the work are:
 
-load inverter.mag
+- The CMOS inverter circuit was designed using complementary PMOS and NMOS transistors.
+- SPICE simulation was performed to verify the functional behaviour of the CMOS inverter.
+- Transient analysis was used to observe the input and output voltage waveforms.
+- The inverter's logic operation was verified for both LOW and HIGH input conditions.
+- Rise and fall behaviour, propagation characteristics, switching behaviour, and voltage transfer characteristics were studied.
+- Different transistor sizing conditions were analysed to understand their effect on inverter performance.
+- The inverter was implemented as a physical standard-cell layout using the SKY130A technology.
+- The cell boundary, power and ground connections, diffusion regions, polysilicon, contacts, and metal interconnects were established.
+- The physical layout was extracted to generate an electrical representation of the implemented circuit.
+- The extracted netlist was used to prepare the SPICE simulation setup.
+- NGSPICE transient simulation was performed on the extracted circuit to verify the post-layout behaviour.
+- The obtained waveform confirmed the expected CMOS inverter operation.
+- The CMOS fabrication process was studied through the complete 16-mask fabrication sequence, including well formation, gate formation, LDD formation, source/drain formation, contacts, and metal interconnections.
 
-# Check DRC
+Overall, the results establish a clear connection between **circuit design → SPICE simulation → transistor characterization → physical layout → extraction → post-layout simulation → CMOS fabrication**.
 
-drc check
+---
 
-# Show DRC errors
+## 🎯 Conclusion
 
-drc why
+This module provided a complete understanding of CMOS inverter design from the circuit level to the physical implementation and fabrication level. The CMOS inverter was first analysed using SPICE to understand its electrical and switching behaviour. Its transient response, voltage transfer characteristics, switching threshold, rise and fall behaviour, and the influence of transistor sizing were studied in detail.
 
-# Extract SPICE
+The design was then implemented as a SKY130A standard-cell layout. Important physical-design elements such as the cell boundary, PMOS and NMOS regions, power and ground rails, contacts, polysilicon, diffusion, and metal interconnects were considered during layout implementation.
 
-extract all
+The completed layout was extracted to obtain the corresponding electrical netlist. This extracted representation was simulated using NGSPICE, and the resulting waveforms were compared with the expected CMOS inverter behaviour. This step demonstrated how physical layout information affects the electrical representation of the circuit and how post-layout simulation can be used for verification.
 
-ext2spice lvs
+In addition, the 16-mask CMOS fabrication process was studied to understand how the designed transistor structures are physically fabricated on a silicon wafer through multiple masking, implantation, deposition, etching, and metallization steps.
 
-ext2spice
+Thus, the module successfully demonstrated the complete **RTL-to-physical-design and CMOS implementation concept**, while providing practical exposure to **SPICE, NGSPICE, Magic VLSI, SKY130A PDK, layout extraction, standard-cell design, and CMOS fabrication technology**.
 
-# Save the layout
+## 👤 Author
 
-writeall
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/sky130_inverter.spice
-# ============================================================
-
-cat > SKY130_D3_SK3/sky130_inverter.spice <<'EOF'
-* Sky130 CMOS Inverter Characterization Deck
-
-.title Sky130 CMOS Inverter Characterization
-
-.param VDD=1.8
-
-VDD VPWR 0 {VDD}
-
-VIN A 0 PULSE(0 {VDD} 0 10p 10p 5n 10n)
-
-* PMOS
-M1 Y A VPWR VPWR sky130_fd_pr__pfet_01v8
-+ L=0.15u W=1.0u
-
-* NMOS
-M2 Y A 0 0 sky130_fd_pr__nfet_01v8
-+ L=0.15u W=0.5u
-
-CLOAD Y 0 10f
-
-.tran 10p 50n
-
-.control
-run
-plot v(A) v(Y)
-.endc
-
-.end
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/characterization.spice
-# ============================================================
-
-cat > SKY130_D3_SK3/characterization.spice <<'EOF'
-* CMOS Inverter DC Characterization
-
-VDD VDD 0 1.8
-VIN IN 0 0
-
-M1 OUT IN VDD VDD PMOS W=1u L=0.15u
-M2 OUT IN 0 0 NMOS W=0.5u L=0.15u
-
-.model PMOS PMOS
-.model NMOS NMOS
-
-.dc VIN 0 1.8 0.01
-
-.control
-run
-plot v(IN) v(OUT)
-
-* Switching threshold can be obtained
-* from the point where VIN approximately equals VOUT.
-
-.endc
-
-.end
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/drc_commands.txt
-# ============================================================
-
-cat > SKY130_D3_SK3/drc_commands.txt <<'EOF'
-# Magic Sky130 DRC commands
-
-magic -T sky130A inverter.mag
-
-# Inside Magic:
-
-drc check
-drc count
-drc why
-
-# Search for DRC errors
-
-drc find
-
-# Display the next DRC error
-
-drc next
-
-# Clear DRC markers
-
-drc off
-
-# Re-enable DRC
-
-drc on
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/poly9_fix.md
-# ============================================================
-
-cat > SKY130_D3_SK3/poly9_fix.md <<'EOF'
-# Poly.9 DRC Error
-
-## Purpose
-
-The poly.9 rule checks the required spacing and geometrical relationship
-between polysilicon structures according to the Sky130 technology rules.
-
-## Debugging Procedure
-
-1. Open the layout in Magic.
-2. Run:
-
-drc check
-
-3. Locate the poly.9 error.
-4. Run:
-
-drc why
-
-5. Inspect the highlighted geometry.
-6. Measure the distance between the relevant poly shapes.
-7. Modify the layout according to the Sky130 design-rule requirement.
-8. Run DRC again.
-
-## Verification
-
-The layout must be rechecked after modification.
-
-Commands:
-
-drc check
-drc count
-drc why
-
-The final layout should have no remaining unintended DRC violations.
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/poly_resistor_spacing.md
-# ============================================================
-
-cat > SKY130_D3_SK3/poly_resistor_spacing.md <<'EOF'
-# Poly Resistor Spacing to Diffusion and Tap
-
-The poly resistor layout must maintain the spacing required by the
-Sky130 technology design rules.
-
-Important checks include:
-
-- Poly to diffusion spacing
-- Poly to tap spacing
-- Poly width
-- Poly enclosure
-- Contact spacing
-- Diffusion spacing
-
-## Magic Verification
-
-Use:
-
-drc check
-
-Then inspect each reported error using:
-
-drc why
-
-After fixing the geometry, run:
-
-drc check
-
-again.
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/drc_geometry.md
-# ============================================================
-
-cat > SKY130_D3_SK3/drc_geometry.md <<'EOF'
-# DRC Error as a Geometrical Construct
-
-A DRC error is generally caused by a violation of a geometrical
-relationship between layout layers.
-
-Examples include:
-
-- Minimum width violation
-- Minimum spacing violation
-- Enclosure violation
-- Extension violation
-- Overlap violation
-- Contact size violation
-
-## Debugging Method
-
-1. Run DRC.
-2. Select the reported error.
-3. Use "drc why".
-4. Identify the layers involved.
-5. Measure the geometry.
-6. Compare it with the Sky130 rule.
-7. Modify the geometry.
-8. Run DRC again.
-
-This process converts a textual DRC error into a physical layout
-geometry that can be corrected.
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/missing_rules.md
-# ============================================================
-
-cat > SKY130_D3_SK3/missing_rules.md <<'EOF'
-# Missing or Incorrect DRC Rules
-
-## Debugging Approach
-
-When a DRC result appears incorrect:
-
-1. Identify the reported rule.
-2. Identify the layers involved.
-3. Inspect the corresponding Sky130 rule.
-4. Check the Magic technology file.
-5. Verify layer names and layer properties.
-6. Compare the rule with the physical layout.
-7. Correct the technology rule only when the lab specifically
-   requires a technology-file modification.
-8. Re-run DRC.
-
-## Verification
-
-Always verify the final result with:
-
-drc check
-drc count
-
-The purpose is to ensure that the layout is interpreted correctly
-by Magic using the Sky130 technology rules.
-EOF
-
-
-# ============================================================
-# SKY130_D3_SK3/magic_setup.txt
-# ============================================================
-
-cat > SKY130_D3_SK3/magic_setup.txt <<'EOF'
-# Sky130 Magic Setup
-
-# Check whether Magic is installed
-
-magic -version
-
-# Start Magic using Sky130 technology
-
-magic -T sky130A
-
-# Load a layout
-
-load ../SKY130_D3_SK2/inverter.mag
-
-# DRC
-
-drc check
-drc count
-drc why
-
-# Extraction
-
-extract all
-ext2spice
-
-# Save
-
-writeall
-EOF
-
-
-# ============================================================
-# GIT SETUP
-# ============================================================
-
-git init
-
-git add .
-
-git commit -m "Add Sky130 Module 3 design library cell and characterization labs"
-
-
-echo "============================================================"
-echo " SKY130 MODULE 3 COMPLETED SUCCESSFULLY"
-echo "============================================================"
+**RUPA SRI .C**  
+B.Tech – Electronics & Communication Engineering  
+Anurag University  
+[RTL Workshop Repository](https://github.com/itsfari-nova/RTL_Design_Workshop)
