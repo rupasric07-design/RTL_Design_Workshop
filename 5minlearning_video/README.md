@@ -35,7 +35,7 @@ This repository documents my learning experience from the RTL Design and Synthes
 * Learned about latch inference and synthesis optimization.
 * Gained practical knowledge of basic digital circuits.
 * watch my 5 min workshop video 
-https://drive.google.com/file/d/1AVFuoS5DuNVZ929AQDNUXqFesRUtgndO/view?usp=drivesdk
+[https://drive.google.com/file/d/1AVFuoS5DuNVZ929AQDNUXqFesRUtgndO/view?usp=drivesdk](https://drive.google.com/file/d/1AVFuoS5DuNVZ929AQDNUXqFesRUtgndO/view?usp=drivesdk)
 ## Conclusion
 
 This workshop improved my understanding of digital design, RTL coding, simulation, synthesis, and verification. It provided a foundation for further learning in VLSI design and semiconductor technology.
